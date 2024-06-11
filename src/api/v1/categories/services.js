@@ -71,11 +71,39 @@ const updateCategoryService = async (categoryId, categoryUpdate) => {
   }
 };
 
-const deleteCategoryService = async (categoryId) => {
+const deleteCategoryServiceDepr = async (categoryId) => {
   try {
     console.log("deleteCategoryService");
 
     let deletedCategory = await Category.findByIdAndDelete(categoryId);
+
+    if (deletedCategory) {
+      return {
+        code: 200,
+        msg: categoryId + " is deleted",
+      };
+    } else {
+      return {
+        code: 200,
+        msg: "Internal error message",
+      };
+    }
+  } catch (err) {
+    console.log("deleteCategoryServiceDepr error : ", err);
+    return {
+      code: 200,
+      msg: "Internal error message",
+    };
+  }
+};
+
+const deleteCategoryService = async (categoryId) => {
+  try {
+    console.log("deleteCategoryService");
+
+    // let deletedCategory = await Category.findByIdAndDelete(categoryId);
+
+    await performRecursiveDeletion(categoryId);
 
     if (deletedCategory) {
       return {
@@ -95,6 +123,18 @@ const deleteCategoryService = async (categoryId) => {
       msg: "Internal error message",
     };
   }
+
+  const performRecursiveDeletion = async function (parentCategoryId) {
+    try {
+      let deletedDocuments = await Category.deleteMany({ parentId: parentCategoryId });
+
+      console.log("deletedDocuments : ", deletedDocuments);
+
+      return;
+    } catch (err) {
+      console.log("performRecursiveDeletion error : ", err);
+    }
+  };
 };
 
 module.exports = {
