@@ -68,11 +68,6 @@ const deleteCategory = async (req, res) => {
       return;
     }
 
-    if (await comServices.isChildPresent(req.params.categoryId)) {
-      res.status(400).json("category can not be deleted as it contains child categories");
-      return;
-    }
-
     let deleteCategoryResponse = await services.deleteCategoryService(req.params.categoryId);
 
     res.status(deleteCategoryResponse.code).json(deleteCategoryResponse.msg);

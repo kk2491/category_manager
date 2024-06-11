@@ -8,7 +8,7 @@ const getAllCategoriesService = async () => {
     console.log("getAllCategoriesService");
 
     let categoryDocuments = await Category.find();
-    console.log("categoryDocuments : ", categoryDocuments);
+    // console.log("categoryDocuments : ", categoryDocuments);
 
     let categoryTree = commonServices.buildCategoryData(categoryDocuments);
 
@@ -97,23 +97,38 @@ const deleteCategoryServiceDepr = async (categoryId) => {
   }
 };
 
+const performRecursiveDeletion = async function (parentCategoryId) {
+  try {
+    // let deletedDocuments = await Category.deleteMany({ parentId: parentCategoryId });
+    let childDocuments = await Category.find({ parentId: parentCategoryId });
+    console.log("childDocuments : ", childDocuments);
+    await Category.deleteMany({ parentId: parentCategoryId });
+
+    for (let i = 0; i < childDocuments.length; i++) {
+      performRecursiveDeletion(childDocuments[i]._id.toString());
+    }
+
+    return;
+  } catch (err) {
+    console.log("performRecursiveDeletion error : ", err);
+  }
+};
+
 const deleteCategoryService = async (categoryId) => {
   try {
     console.log("deleteCategoryService");
+    let deletedCategory = await Category.findByIdAndDelete(categoryId);
+    let deletedStatus = await performRecursiveDeletion(categoryId);
 
-    // let deletedCategory = await Category.findByIdAndDelete(categoryId);
-
-    await performRecursiveDeletion(categoryId);
-
-    if (deletedCategory) {
+    if (true) {
       return {
         code: 200,
-        msg: categoryId + " is deleted",
+        msg: "delete is successful",
       };
     } else {
       return {
         code: 200,
-        msg: "Internal error message",
+        msg: "delete is unsuccessful",
       };
     }
   } catch (err) {
@@ -123,18 +138,6 @@ const deleteCategoryService = async (categoryId) => {
       msg: "Internal error message",
     };
   }
-
-  const performRecursiveDeletion = async function (parentCategoryId) {
-    try {
-      let deletedDocuments = await Category.deleteMany({ parentId: parentCategoryId });
-
-      console.log("deletedDocuments : ", deletedDocuments);
-
-      return;
-    } catch (err) {
-      console.log("performRecursiveDeletion error : ", err);
-    }
-  };
 };
 
 module.exports = {

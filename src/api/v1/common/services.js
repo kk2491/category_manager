@@ -18,7 +18,6 @@ const buildCategoryTree = (categoryDocuments, parentId, tree = {}) => {
   try {
     console.log("buildCategoryTree");
     for (let category of categoryDocuments) {
-      console.log("current category : ", category);
       if (category.parentId == parentId) {
         tree[category.name] = {
           ...category.toObject(),
@@ -28,7 +27,7 @@ const buildCategoryTree = (categoryDocuments, parentId, tree = {}) => {
       }
     }
 
-    console.log("final tree : ", JSON.stringify(tree));
+    // console.log("final tree : ", JSON.stringify(tree));
     return tree;
   } catch (err) {
     console.log("buildCategoryTree error : ", err);
